@@ -1,0 +1,6 @@
+@CozyToGo_HostAddress = http://localhost:5222
+
+GET {{CozyToGo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
