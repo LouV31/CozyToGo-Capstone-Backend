@@ -38,22 +38,31 @@ namespace CozyToGo.Controllers
                 Surname = newUser.Surname,
                 Email = newUser.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password),
-                City = newUser.City,
-                Address = newUser.Address,
-                ZipCode = newUser.ZipCode,
                 Phone = newUser.Phone,
-                Role = "User"
             };
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            var address = new Address
+            {
+                IdUser = user.IdUser,
+                AddressName = "Casa",
+                StreetAddress = newUser.StreetAddress,
+                City = newUser.City,
+                ZipCode = newUser.ZipCode,
+                IsPrimary = true
+            };
+            await _context.Addresses.AddAsync(address);
+            await _context.SaveChangesAsync();
+
             return Ok(newUser);
 
         }
 
+
         [HttpPost("authentication")]
         public async Task<IActionResult> LogIn(LoginDTO userDto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
+            var user = await _context.Users.Include(u => u.Addresses).FirstOrDefaultAsync(u => u.Email == userDto.Email);
             if (user == null)
             {
                 return BadRequest("Invalid User");
@@ -67,40 +76,35 @@ namespace CozyToGo.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[] {
-            new Claim(ClaimTypes.Name, user.Email.ToString()),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString())
-        }),
+    new Claim(ClaimTypes.Name, user.Email.ToString()),
+    new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString()),
+    new Claim(ClaimTypes.Role, "User")
+}),
                 Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"]
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            // Ottieni l'indirizzo principale dell'utente
+            var mainAddress = user.Addresses.FirstOrDefault(a => a.IsPrimary);
+
             var authenticatedUser = new
             {
                 Id = user.IdUser,
                 Name = user.Name,
                 Surname = user.Surname,
                 Email = user.Email,
-                City = user.City,
-                Address = user.Address,
                 Phone = user.Phone,
-                Token = tokenHandler.WriteToken(token)
+                Address = mainAddress != null ? mainAddress.CompleteAddress : null,
+                Token = tokenHandler.WriteToken(token),
+                Role = user.Role
             };
 
-            // Convert authenticatedUser to a dictionary so we can add properties conditionally
-            var result = new RouteValueDictionary(authenticatedUser);
 
-            if (!string.IsNullOrEmpty(user.Address2))
-            {
-                result.Add("Address2", user.Address2);
-            }
 
-            if (!string.IsNullOrEmpty(user.Address3))
-            {
-                result.Add("Address3", user.Address3);
-            }
-
-            return Ok(result);
+            return Ok(authenticatedUser);
         }
     }
 }

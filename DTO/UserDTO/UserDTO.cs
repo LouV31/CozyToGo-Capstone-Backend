@@ -1,14 +1,12 @@
 ﻿namespace CozyToGo.DTO.UserDTO
 {
-    public class SignUpDTO
+    public class UserDTO
     {
+        public int IdUser { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
-        public string City { get; set; }
-        public string StreetAddress { get; set; }
-        public string ZipCode { get; set; }
         public string Phone { get; set; }
+        public string Address { get; set; }
     }
 }

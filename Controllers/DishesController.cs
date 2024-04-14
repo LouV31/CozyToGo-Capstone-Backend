@@ -25,17 +25,26 @@ namespace CozyToGo.Controllers
                 return BadRequest("Missing Parameters");
             }
             var dishes = await _context.Dishes
-                .Where(d => d.IdRestaurant == idRestaurant)
-                .Include(d => d.DishIngredients)
-                .ThenInclude(di => di.Ingredient)
-                .Select(d => new
-                {
-                    d.IdDish,
-                    d.Name,
-                    d.Price
-
-                })
-                .ToListAsync();
+    .Where(d => d.IdRestaurant == idRestaurant)
+    .Include(d => d.DishIngredients)
+    .ThenInclude(di => di.Ingredient)
+    .Select(d => new DishDTO
+    {
+        IdDish = d.IdDish,
+        Name = d.Name,
+        Description = d.Description,
+        Image = d.Image,
+        IsAvailable = d.IsAvailable,
+        IdRestaurant = d.IdRestaurant,
+        Ingredients = d.DishIngredients.Select(di => new IngredientsDTO
+        {
+            IdIngredient = di.IdIngredient,
+            Name = di.Ingredient.Name,
+            Price = di.Ingredient.Price
+        }).ToArray(),
+        Price = d.DishIngredients.Sum(di => di.Ingredient.Price)
+    })
+    .ToListAsync();
             return Ok(dishes);
         }
 
