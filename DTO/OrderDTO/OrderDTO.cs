@@ -1,4 +1,6 @@
-﻿namespace CozyToGo.DTO.OrderDTO
+﻿using CozyToGo.DTO.RestaurantDTO;
+
+namespace CozyToGo.DTO.OrderDTO
 {
 
     public class OrderDTO
@@ -12,7 +14,7 @@
         public string DeliveryAddress { get; set; }
         public string City { get; set; }
         public string? Notes { get; set; }
-        public List<OrderDetailDTO> Dishes { get; set; }
+        public List<RestaurantForOrdersDTO> Restaurants { get; set; }
         //public string PaymentIntentId { get; set; }
     }
 

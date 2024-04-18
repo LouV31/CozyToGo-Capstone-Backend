@@ -6,5 +6,9 @@
         Vegetarian,
         Vegan,
         GlutenFree,
+        Fish,
+        Pizza,
+        Meat,
+        Candy,
     }
 }

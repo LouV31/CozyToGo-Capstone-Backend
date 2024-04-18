@@ -46,13 +46,10 @@ namespace CozyToGo.Controllers
         }
 
         // Method to get a specific restaurant
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRestaurant(int? idRestaurant)
+        [HttpGet("{idRestaurant}")]
+        public async Task<IActionResult> GetRestaurant(int idRestaurant)
         {
-            if (idRestaurant == null)
-            {
-                return BadRequest("Missing parameters");
-            }
+
             var restaurant = await _context.Restaurants
                 .Where(r => r.IdRestaurant == idRestaurant)
                 .Select(r => new

@@ -27,32 +27,34 @@ namespace CozyToGo.Controllers
                 return Unauthorized();
             }
             var orders = await _context.Orders
-                .Where(o => o.IdUser.ToString() == userId)
-                .Select(o => new OrderDTO
+    .Where(o => o.IdUser.ToString() == userId)
+    .Select(o => new OrderDTO
+    {
+        IdOrder = o.IdOrder,
+        IdUser = Convert.ToInt32(userId),
+        Total = o.Total,
+        IsDelivered = o.IsDelivered,
+        OrderDate = o.OrderDate,
+        DeliveryDate = o.DeliveryDate,
+        DeliveryAddress = o.DeliveryAddress,
+        City = o.City,
+        Notes = o.Notes,
+        Restaurants = o.OrderDetails
+            .GroupBy(d => d.Dish.Restaurant)
+            .Select(g => new RestaurantForOrdersDTO
+            {
+                IdRestaurant = g.Key.IdRestaurant,
+                Name = g.Key.Name,
+                Dishes = g.Select(d => new OrderDetailDTO
                 {
-                    IdOrder = o.IdOrder,
-                    IdUser = Convert.ToInt32(userId),
-                    Total = o.Total,
-                    IsDelivered = o.IsDelivered,
-                    OrderDate = o.OrderDate,
-                    DeliveryDate = o.DeliveryDate,
-                    DeliveryAddress = o.DeliveryAddress,
-                    City = o.City,
-                    Notes = o.Notes,
-                    Dishes = o.OrderDetails.Select(d => new OrderDetailDTO
-                    {
-                        IdOrder = d.IdOrder,
-                        IdDish = d.IdDish,
-                        Name = d.Dish.Name,
-                        Quantity = d.Quantity,
-                        Image = d.Dish.Image,
-                        Restaurant = new RestaurantForOrdersDTO
-                        {
-                            IdRestaurant = d.Dish.Restaurant.IdRestaurant,
-                            Name = d.Dish.Restaurant.Name,
-                        }
-                    }).ToList()
-                }).ToListAsync();
+                    IdOrder = d.IdOrder,
+                    IdDish = d.IdDish,
+                    Name = d.Dish.Name,
+                    Quantity = d.Quantity,
+                    Image = d.Dish.Image,
+                }).ToList()
+            }).ToList()
+    }).ToListAsync();
             return Ok(orders);
         }
     }
