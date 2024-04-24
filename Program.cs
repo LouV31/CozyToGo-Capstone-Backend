@@ -50,6 +50,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+// Adding static files middleware to the pipeline.
+app.UseStaticFiles();
 // Adding CORS middleware to the pipeline. CORS middleware must be added before the call to UseAuthorization
 app.UseCors();
 // Adding Authentication middleware to the pipeline.

@@ -3,6 +3,7 @@
     public class RestaurantDTO
     {
         public int IdRestaurant { get; set; }
+        public int IdOwner { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public string Address { get; set; }

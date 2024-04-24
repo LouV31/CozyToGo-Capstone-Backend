@@ -2,8 +2,10 @@
 using CozyToGo.DTO.DishDTO;
 using CozyToGo.DTO.IngredientDTO;
 using CozyToGo.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CozyToGo.Controllers
 {
@@ -71,9 +73,20 @@ namespace CozyToGo.Controllers
             return Ok(dish);
         }
 
+        [Authorize(Roles = "Owner")]
         [HttpPost]
         public async Task<IActionResult> PostDish([FromBody] AddDishDTO newDish)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            if (role != "Owner")
+            {
+                return Unauthorized();
+            }
             if (await _context.Dishes.AnyAsync(d => d.Name == newDish.Name && d.IdRestaurant == newDish.IdRestaurant))
             {
                 return BadRequest("Dish already exist in this restaurant");
@@ -84,7 +97,7 @@ namespace CozyToGo.Controllers
                 IdRestaurant = newDish.IdRestaurant,
                 Name = newDish.Name,
                 Description = newDish.Description,
-                Price = newDish.Price,
+
             };
             await _context.Dishes.AddAsync(dish);
             await _context.SaveChangesAsync();
@@ -133,17 +146,26 @@ namespace CozyToGo.Controllers
             return Ok(dishResponse);
         }
 
+        [Authorize(Roles = "Owner")]
         [HttpPut("{idDish}/uploadImage")]
-        public async Task<IActionResult> UploadDishImage(int? idDish, [FromBody] IFormFile file)
+        public async Task<IActionResult> UploadDishImage(int? idDish, IFormFile file)
         {
             if (idDish == null)
             {
                 return BadRequest("Missing Parameters");
             }
-            var dish = await _context.Dishes.FindAsync(idDish);
+            var dish = await _context.Dishes.Include(d => d.Restaurant).FirstOrDefaultAsync(d => d.IdDish == idDish);
             if (dish == null)
             {
                 return BadRequest("Dish Not Found");
+            }
+            // Ottieni l'ID dell'utente corrente
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Se l'utente è un Owner, verifica che stia cercando di caricare un'immagine per il proprio ristorante
+            if (User.IsInRole("Owner") && dish.Restaurant.IdOwner.ToString() != userId)
+            {
+                return Unauthorized("You can only upload images for your own restaurant");
             }
             if (file == null || file.Length == 0)
             {
@@ -158,7 +180,7 @@ namespace CozyToGo.Controllers
             dish.Image = fileName;
             _context.Update(dish);
             await _context.SaveChangesAsync();
-            return Ok(("Image Uploaded"));
+            return Ok((new { idDish = dish.IdDish, image = fileName }));
         }
 
         [HttpPut("{idDish}")]
@@ -262,6 +284,37 @@ namespace CozyToGo.Controllers
                     }).ToArray()
                 }).FirstOrDefaultAsync();
             return Ok(dishResponse);
+        }
+
+        [HttpGet("search/{dishName}")]
+        public async Task<IActionResult> GetDishesByName(string dishName)
+        {
+            var dishes = await _context.Dishes
+                .Where(d => d.Name.Contains(dishName.ToLower()))
+                .Include(d => d.DishIngredients)
+                .ThenInclude(di => di.Ingredient)
+                .Select(d => new DishDTO
+                {
+                    IdDish = d.IdDish,
+                    Name = d.Name,
+                    Description = d.Description,
+                    Image = d.Image,
+                    IsAvailable = d.IsAvailable,
+                    Price = d.Price,
+                    IdRestaurant = d.IdRestaurant,
+                    Ingredients = d.DishIngredients.Select(di => new IngredientsDTO
+                    {
+                        IdIngredient = di.IdIngredient,
+                        Name = di.Ingredient.Name,
+                        Price = di.Ingredient.Price
+                    }).ToArray()
+                })
+                .ToListAsync();
+            if (dishes == null)
+            {
+                return NotFound("No dishes found");
+            }
+            return Ok(dishes);
         }
     }
 }

@@ -207,6 +207,42 @@ namespace CozyToGo.Migrations
                     b.ToTable("OrderDetails");
                 });
 
+            modelBuilder.Entity("CozyToGo.Models.Owner", b =>
+                {
+                    b.Property<int>("IdOwner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdOwner"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdOwner");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Owners");
+                });
+
             modelBuilder.Entity("CozyToGo.Models.Restaurant", b =>
                 {
                     b.Property<int>("IdRestaurant")
@@ -241,6 +277,9 @@ namespace CozyToGo.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("IdOwner")
+                        .HasColumnType("int");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -270,6 +309,9 @@ namespace CozyToGo.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdRestaurant");
+
+                    b.HasIndex("IdOwner")
+                        .IsUnique();
 
                     b.ToTable("Restaurants");
                 });
@@ -396,6 +438,17 @@ namespace CozyToGo.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("CozyToGo.Models.Restaurant", b =>
+                {
+                    b.HasOne("CozyToGo.Models.Owner", "Owner")
+                        .WithOne("Restaurant")
+                        .HasForeignKey("CozyToGo.Models.Restaurant", "IdOwner")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("CozyToGo.Models.Dish", b =>
                 {
                     b.Navigation("DishIngredients");
@@ -409,6 +462,12 @@ namespace CozyToGo.Migrations
             modelBuilder.Entity("CozyToGo.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("CozyToGo.Models.Owner", b =>
+                {
+                    b.Navigation("Restaurant")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CozyToGo.Models.Restaurant", b =>

@@ -14,11 +14,13 @@ namespace CozyToGo.Data
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Owner> Owners { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<Owner>().HasIndex(o => o.Email).IsUnique();
             modelBuilder.Entity<DishIngredient>()
             .HasOne(i => i.Dish)
             .WithMany(d => d.DishIngredients)
@@ -29,6 +31,11 @@ namespace CozyToGo.Data
             .WithMany(d => d.DishIngredients)
             .HasForeignKey(i => i.IdIngredient)
             .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Restaurant>()
+                .HasOne(r => r.Owner)
+                .WithOne(o => o.Restaurant)
+                .HasForeignKey<Restaurant>(r => r.IdOwner)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

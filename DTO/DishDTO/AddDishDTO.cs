@@ -10,9 +10,7 @@
         public string Description { get; set; }
 
 
-        public bool IsAvailable { get; set; } = true;
 
-        public decimal Price { get; set; }
         public List<int> Ingredients { get; set; }
     }
 }

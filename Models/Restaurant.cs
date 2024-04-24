@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CozyToGo.Models
 {
@@ -6,6 +7,8 @@ namespace CozyToGo.Models
     {
         [Key]
         public int IdRestaurant { get; set; }
+        [ForeignKey("Owner")]
+        public int IdOwner { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
@@ -46,5 +49,6 @@ namespace CozyToGo.Models
 
         public virtual ICollection<Dish> Dishes { get; set; }
         public virtual ICollection<Ingredient> Ingredients { get; set; }
+        public virtual Owner Owner { get; set; }
     }
 }
