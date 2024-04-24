@@ -9,6 +9,7 @@ namespace CozyToGo.DTO.OrderDTO
         public int Quantity { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
+        public bool isDelivered { get; set; }
         public RestaurantForOrdersDTO Restaurant { get; set; }
     }
 }

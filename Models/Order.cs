@@ -11,8 +11,7 @@ namespace CozyToGo.Models
         public int IdUser { get; set; }
         [Required]
         public decimal Total { get; set; }
-        [Required]
-        public bool IsDelivered { get; set; } = false;
+
         [Required]
         public DateTime OrderDate { get; set; } = DateTime.Now;
 

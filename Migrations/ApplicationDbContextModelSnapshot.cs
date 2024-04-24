@@ -162,9 +162,6 @@ namespace CozyToGo.Migrations
                     b.Property<int>("IdUser")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDelivered")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -197,6 +194,9 @@ namespace CozyToGo.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<bool>("isDelivered")
+                        .HasColumnType("bit");
 
                     b.HasKey("IdOrderDetail");
 

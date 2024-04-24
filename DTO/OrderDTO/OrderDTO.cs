@@ -8,7 +8,6 @@ namespace CozyToGo.DTO.OrderDTO
         public int IdOrder { get; set; }
         public int IdUser { get; set; }
         public decimal Total { get; set; }
-        public bool IsDelivered { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public string DeliveryAddress { get; set; }

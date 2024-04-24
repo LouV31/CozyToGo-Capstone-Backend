@@ -183,6 +183,7 @@ namespace CozyToGo.Controllers
             return Ok((new { idDish = dish.IdDish, image = fileName }));
         }
 
+        [Authorize(Roles = "Owner")]
         [HttpPut("{idDish}")]
         public async Task<IActionResult> ToggleDish(int? idDish)
         {
@@ -223,9 +224,21 @@ namespace CozyToGo.Controllers
             return Ok(dishResponse);
         }
 
+        [Authorize(Roles = "Owner")]
         [HttpPut("edit/{idDish}")]
         public async Task<IActionResult> UpdateDish(int? idDish, [FromBody] EditDishDTO editedDish)
         {
+            var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (ownerId == null)
+            {
+                return Unauthorized("You must be logged to use this function");
+            }
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            if (role != "Owner")
+            {
+                return Unauthorized("You must be a restaurant owner to use this function");
+            }
+
             if (idDish == null)
             {
                 return BadRequest("Missing parameters");
@@ -240,6 +253,7 @@ namespace CozyToGo.Controllers
             }
             dish.Name = editedDish.Name;
             dish.Description = editedDish.Description;
+
 
             _context.DishIngredients.RemoveRange(dish.DishIngredients);
 

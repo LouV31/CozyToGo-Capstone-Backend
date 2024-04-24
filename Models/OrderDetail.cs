@@ -14,6 +14,8 @@ namespace CozyToGo.Models
         public int IdDish { get; set; }
         [Required]
         public int Quantity { get; set; }
+        [Required]
+        public bool isDelivered { get; set; } = false;
 
         public virtual Order Order { get; set; }
 

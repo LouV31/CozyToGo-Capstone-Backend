@@ -97,7 +97,6 @@ namespace CozyToGo.Controllers
             var order = new Order
             {
                 IdUser = Convert.ToInt32(userId),
-                IsDelivered = false,
                 OrderDate = DateTime.Now,
                 DeliveryAddress = cart.DeliveryAddress,
                 City = cart.City,
@@ -171,7 +170,6 @@ namespace CozyToGo.Controllers
                 IdOrder = order.IdOrder,
                 IdUser = order.IdUser,
                 Total = order.Total,
-                IsDelivered = order.IsDelivered,
                 OrderDate = order.OrderDate,
                 DeliveryDate = order.DeliveryDate,
                 DeliveryAddress = order.DeliveryAddress,
