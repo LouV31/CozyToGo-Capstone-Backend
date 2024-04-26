@@ -148,7 +148,8 @@ namespace CozyToGo.Controllers
                 return Unauthorized("You must be a restaurant owner to use this function");
             }
             var ingredients = await _context.Ingredients
-                .Where(i => i.Name.Contains(ingredientName.ToLower()))
+               .Include(i => i.Restaurant)
+                .Where(i => i.Name.Contains(ingredientName.ToLower()) && i.Restaurant.IdOwner == Convert.ToInt32(userId))
                 .Select(i => new
                 {
                     i.IdIngredient,

@@ -112,6 +112,63 @@ namespace CozyToGo.Controllers
 
             return Ok(orders);
         }
+
+        [Authorize(Roles = "Owner")]
+        [HttpGet("search/{userEmail}")]
+        public async Task<IActionResult> GetOrderByEmail(string userEmail)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized("You must be logged to call this function");
+            }
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            if (role != "Owner")
+            {
+                return Unauthorized("You must be a Owner to call this function");
+            }
+            var orders = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(d => d.Dish)
+                .ThenInclude(r => r.Restaurant)
+                .Include(o => o.User)
+                .Where(o => o.OrderDetails.Any(d => d.Dish.Restaurant.IdOwner.ToString() == userId && o.User.Email.Contains(userEmail)))
+                .Select(o => new
+                {
+                    IdOrder = o.IdOrder,
+                    User = new
+                    {
+
+                        IdUser = o.User.IdUser,
+                        Email = o.User.Email,
+                    },
+                    OrderDate = o.OrderDate,
+                    DeliveryDate = o.DeliveryDate,
+                    DeliveryAddress = o.DeliveryAddress,
+                    City = o.City,
+                    Notes = o.Notes,
+                    OrderDetails = o.OrderDetails
+    .Where(d => d.Dish.Restaurant.IdOwner.ToString() == userId)
+    .Select(d => new
+    {
+        IdOrderDetail = d.IdOrderDetail,
+        IsDelivered = d.isDelivered,
+        Dish = new
+        {
+            IdDish = d.Dish.IdDish,
+            Name = d.Dish.Name,
+            Quantity = d.Quantity,
+            Image = d.Dish.Image,
+            Price = d.Dish.DishIngredients.Sum(d => d.Ingredient.Price),
+        }
+    }).ToList()
+
+
+                }).ToListAsync();
+
+            return Ok(orders);
+        }
+
         [Authorize(Roles = "Owner")]
         [HttpPut("deliverOrderDetails")]
         public async Task<IActionResult> SetOrderDetailsDelivered([FromBody] List<int> orderDetailIds)

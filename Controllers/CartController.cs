@@ -21,66 +21,7 @@ namespace CozyToGo.Controllers
         }
 
 
-        //[HttpPost("create-session")]
-        //public ActionResult CreateCheckoutSession([FromBody] CartDTO cart)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
 
-        //    // Crea la lista degli articoli per la sessione di checkout
-        //    var lineItems = cart
-        //        .Dishes.Select(item => new SessionLineItemOptions
-        //        {
-        //            PriceData = new SessionLineItemPriceDataOptions
-        //            {
-        //                Currency = "eur",
-        //                ProductData = new SessionLineItemPriceDataProductDataOptions
-        //                {
-        //                    Name = item.Name,
-        //                },
-        //                UnitAmountDecimal = (long)(item.totale * 100), // Converti il prezzo in centesimi
-        //            },
-        //            Quantity = item.quantita, // Modifica la quantità se necessario
-        //        })
-        //        .ToList();
-
-        //    // URL del tuo frontend React
-        //    var domain = ClientInfo.DOMAIN;
-
-        //    // Recupera l'id dell'utente loggato dal token JWT
-        //    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        //    // Crea opzioni per la sessione di checkout
-        //    var options = new SessionCreateOptions
-        //    {
-        //        PaymentMethodTypes = new List<string> { "card", "paypal" },
-        //        LineItems = lineItems,
-        //        Mode = "payment",
-        //        SuccessUrl = domain + "/success?session_id={CHECKOUT_SESSION_ID}",
-        //        CancelUrl = domain + "/checkout",
-        //    };
-
-        //    var service = new SessionService();
-        //    Session session = service.Create(options);
-
-        //    // Crea un nuovo ordine
-        //    var order = new Order
-        //    {
-        //        IdUser = int.Parse(userId),
-        //        IsDelivered = false,
-        //        OrderDate = DateTime.Now,
-        //        DeliveryAddress = cart.DeliveryAddress,
-        //        City = cart.City,
-        //        Notes = cart.Notes
-        //    };
-
-        //    _context.Orders.Add(order);
-        //    _context.SaveChanges();
-
-        //    return Ok(new { sessionId = session.Id });
-        //}
 
 
         [Authorize]
